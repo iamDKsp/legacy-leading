@@ -5,22 +5,22 @@ import { motion, AnimatePresence } from "framer-motion";
 const VIDEO_TESTIMONIALS = [
   {
     src: "/Carlos.mp4",
-    name: "Carlos Mendes",
-    city: "São Paulo, SP",
+    name: "Lucas Durval",
+    city: "Bebedouro, SP",
     case: "Negativação Indevida",
     quote: "Me tiraram de uma situação que eu achei que nunca teria saída.",
   },
   {
     src: "/Fernanda.mp4",
-    name: "Fernanda Rocha",
-    city: "Recife, PE",
+    name: "Caroline Lopes",
+    city: "Paulistânia, SP",
     case: "Dívida Abusiva",
     quote: "A Legacy me devolveu a tranquilidade e o meu nome limpo!",
   },
   {
     src: "/Roberto.mp4",
-    name: "Roberto Lima",
-    city: "Goiânia, GO",
+    name: "Loussiquila Kibeni",
+    city: "Olímpia, SP",
     case: "Score Negativado",
     quote: "Resultado em menos de 60 dias. Profissionais incríveis e humanos.",
   },
