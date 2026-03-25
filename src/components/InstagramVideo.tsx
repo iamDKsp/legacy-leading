@@ -109,12 +109,6 @@ const InstagramVideo = () => {
         resetHideTimer();
     };
 
-    const openInstagram = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        window.open(INSTAGRAM_URL, "_blank", "noopener,noreferrer");
-        resetHideTimer();
-    };
 
     return (
         <motion.div
@@ -154,13 +148,16 @@ const InstagramVideo = () => {
                                 <div className="p-2 bg-black/40 rounded-full text-white/40 backdrop-blur-sm">
                                     <Volume2 size={18} />
                                 </div>
-                                <button
-                                    onClick={openInstagram}
-                                    className="p-2 bg-black/40 rounded-full text-white hover:bg-[#C5A572] hover:text-black backdrop-blur-sm transition-colors"
+                                <a
+                                    href={INSTAGRAM_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="p-2 bg-black/40 rounded-full text-white hover:bg-[#C5A572] hover:text-black backdrop-blur-sm transition-colors flex items-center justify-center"
                                     title="Ver no Instagram"
                                 >
                                     <Instagram size={18} />
-                                </button>
+                                </a>
                             </div>
 
                             {/* Botão Play central */}
@@ -203,12 +200,12 @@ const InstagramVideo = () => {
                                 className="w-full h-full object-cover"
                                 autoPlay
                                 playsInline
-                                muted
-                                onEnded={handleVideoEnded}
+                                muted={isMuted}
                                 onCanPlay={(e) => {
-                                    // Garante que a DOM property reflita o estado atual
+                                    // Sincroniza DOM property ao carregar o video
                                     (e.target as HTMLVideoElement).muted = isMuted;
                                 }}
+                                onEnded={handleVideoEnded}
                             />
 
                             {/* Overlay de controles — some após 2s */}
