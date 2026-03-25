@@ -240,12 +240,12 @@ const InstagramVideo = () => {
                                         </div>
 
                                         {/* Centro: pause/play */}
-                                        <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                             <motion.button
                                                 whileHover={{ scale: 1.1 }}
                                                 whileTap={{ scale: 0.9 }}
                                                 onClick={togglePlayPause}
-                                                className="p-3 bg-black/50 rounded-full text-white hover:bg-black/80 backdrop-blur-sm transition-colors"
+                                                className="p-3 bg-black/50 rounded-full text-white hover:bg-black/80 backdrop-blur-sm transition-colors pointer-events-auto"
                                             >
                                                 {isPaused
                                                     ? <Play size={22} className="fill-white ml-0.5" />

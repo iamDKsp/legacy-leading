@@ -3,18 +3,18 @@ import { motion } from "framer-motion";
 
 const testimonials = [
   {
-    name: "Maria Silva",
-    role: "São Paulo, SP",
+    name: "Lucas Durval",
+    role: "Bebedouro, SP",
     text: "Recebi minha indenização em menos de 3 meses. Equipe extremamente competente e atenciosa. Recomendo a todos!",
   },
   {
-    name: "João Oliveira",
-    role: "Belo Horizonte, MG",
+    name: "Caroline Lopes",
+    role: "Paulistânia, SP",
     text: "Achei que não tinha direito a nada, mas a Legacy conseguiu uma indenização que mudou minha vida. Profissionais incríveis.",
   },
   {
-    name: "Ana Costa",
-    role: "Curitiba, PR",
+    name: "Loussiquila Kibeni",
+    role: "Olímpia, SP",
     text: "Atendimento humanizado e resultado excelente. Foram transparentes do início ao fim. Gratidão eterna!",
   },
 ];
