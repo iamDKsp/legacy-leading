@@ -1,9 +1,11 @@
+import { useState } from "react";
 import logo from "@/assets/logo-legacy.jfif";
-import { Phone, Mail, MapPin } from "lucide-react";
-import { motion } from "framer-motion";
+import { Phone, Mail, MapPin, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const [lightbox, setLightbox] = useState<string | null>(null);
 
   return (
     <footer className="bg-secondary pt-16 pb-8 border-t border-border">
@@ -45,9 +47,12 @@ const Footer = () => {
                   </h3>
                   <div className="text-muted-foreground space-y-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border">
-                        {/* Placeholder for Gustavo's photo */}
-                        <span className="text-xs font-medium text-muted-foreground">Foto</span>
+                      <div
+                        className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/40 shadow-md flex-shrink-0 cursor-pointer hover:border-primary hover:scale-110 transition-all duration-200"
+                        onClick={() => setLightbox("/gustavo.png")}
+                        title="Ver foto"
+                      >
+                        <img src="/gustavo.png" alt="Gustavo" className="w-full h-full object-cover" />
                       </div>
                       <div>
                         <p className="font-semibold text-foreground">Gustavo</p>
@@ -56,9 +61,12 @@ const Footer = () => {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center overflow-hidden border border-border">
-                        {/* Placeholder for Guilherme's photo */}
-                        <span className="text-xs font-medium text-muted-foreground">Foto</span>
+                      <div
+                        className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/40 shadow-md flex-shrink-0 cursor-pointer hover:border-primary hover:scale-110 transition-all duration-200"
+                        onClick={() => setLightbox("/Guilherme.png")}
+                        title="Ver foto"
+                      >
+                        <img src="/Guilherme.png" alt="Guilherme" className="w-full h-full object-cover" />
                       </div>
                       <div>
                         <p className="font-semibold text-foreground">Guilherme</p>
@@ -181,6 +189,36 @@ const Footer = () => {
           direitos reservados.
         </div>
       </div>
+      {/* Lightbox */}
+      <AnimatePresence>
+        {lightbox && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center p-4"
+            onClick={() => setLightbox(null)}
+          >
+            <button
+              onClick={() => setLightbox(null)}
+              className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+            >
+              <X size={24} />
+            </button>
+            <motion.img
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              src={lightbox}
+              alt="Foto"
+              className="max-h-[90vh] max-w-[90vw] rounded-2xl shadow-2xl object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </footer>
   );
 };

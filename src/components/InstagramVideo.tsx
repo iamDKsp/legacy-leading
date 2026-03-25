@@ -1,74 +1,147 @@
-import { useState, useRef, useEffect } from "react";
-import { Play, Instagram, ChevronLeft, ChevronRight, Volume2, VolumeX } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { Play, Pause, Instagram, ChevronLeft, ChevronRight, Volume2, VolumeX } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const VIDEOS = ["/reel.mp4", "/reels2.mp4"];
 const INSTAGRAM_URL = "https://www.instagram.com/legacyassessoria_/";
+const AUTOPLAY_DELAY = 5000;   // 5 segundos para iniciar automaticamente
+const CONTROLS_HIDE_DELAY = 2000; // 2 segundos para esconder controles
 
 const InstagramVideo = () => {
     const [isPlaying, setIsPlaying] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
     const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-    const [isMuted, setIsMuted] = useState(false);
-    const videoRef = useRef<HTMLVideoElement>(null);
+    const [isMuted, setIsMuted] = useState(true); // muted para autoplay funcionar no browser
+    const [showControls, setShowControls] = useState(true);
 
-    // Sync muted state manually to ensure it applies
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const hideControlsTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // ─── Auto-play após 5 segundos ───────────────────────────────────────────
+    useEffect(() => {
+        const autoplayTimer = setTimeout(() => {
+            setIsPlaying(true);
+            setIsPaused(false);
+        }, AUTOPLAY_DELAY);
+        return () => clearTimeout(autoplayTimer);
+    }, []);
+
+    // ─── Sync muted no elemento de vídeo ────────────────────────────────────
     useEffect(() => {
         if (videoRef.current) {
             videoRef.current.muted = isMuted;
         }
     }, [isMuted]);
 
-    const handlePlay = () => {
+    // ─── Ao trocar de vídeo, dá play automaticamente ─────────────────────────
+    useEffect(() => {
+        if (videoRef.current && isPlaying && !isPaused) {
+            videoRef.current.play().catch(() => {});
+        }
+    }, [currentVideoIndex]);
+
+    // ─── Lógica de esconder controles ────────────────────────────────────────
+    const resetHideTimer = useCallback(() => {
+        setShowControls(true);
+        if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
+        hideControlsTimer.current = setTimeout(() => {
+            setShowControls(false);
+        }, CONTROLS_HIDE_DELAY);
+    }, []);
+
+    useEffect(() => {
+        if (isPlaying) {
+            resetHideTimer();
+        }
+        return () => {
+            if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
+        };
+    }, [isPlaying, resetHideTimer]);
+
+    // ─── Handlers ────────────────────────────────────────────────────────────
+    const handleCoverClick = () => {
         setIsPlaying(true);
+        setIsPaused(false);
+    };
+
+    const togglePlayPause = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!videoRef.current) return;
+        if (isPaused) {
+            videoRef.current.play().catch(() => {});
+            setIsPaused(false);
+        } else {
+            videoRef.current.pause();
+            setIsPaused(true);
+        }
+        resetHideTimer();
+    };
+
+    const handleVideoEnded = () => {
+        const nextIndex = currentVideoIndex + 1;
+        if (nextIndex >= VIDEOS.length) {
+            setIsPlaying(false);
+            setIsPaused(false);
+            setCurrentVideoIndex(0);
+        } else {
+            setCurrentVideoIndex(nextIndex);
+        }
     };
 
     const nextVideo = (e: React.MouseEvent) => {
         e.stopPropagation();
         setCurrentVideoIndex((prev) => (prev + 1) % VIDEOS.length);
+        resetHideTimer();
     };
 
     const prevVideo = (e: React.MouseEvent) => {
         e.stopPropagation();
         setCurrentVideoIndex((prev) => (prev - 1 + VIDEOS.length) % VIDEOS.length);
+        resetHideTimer();
     };
 
     const toggleMute = (e: React.MouseEvent) => {
         e.stopPropagation();
-        setIsMuted(!isMuted);
+        e.preventDefault();
+        setIsMuted((prev) => {
+            if (videoRef.current) videoRef.current.muted = !prev;
+            return !prev;
+        });
+        resetHideTimer();
+    };
+
+    const openInstagram = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        window.open(INSTAGRAM_URL, "_blank", "noopener,noreferrer");
+        resetHideTimer();
     };
 
     return (
         <motion.div
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.3 }}
-            className="relative group mx-auto lg:mx-0 w-[280px] sm:w-[320px] aspect-[9/16]"
+            className="relative mx-auto lg:mx-0 w-[280px] sm:w-[320px] aspect-[9/16]"
         >
-            {/* Infinite Glow / Backlight Effect */}
+            {/* Glow animado */}
             <motion.div
-                animate={{
-                    opacity: [0.4, 0.8, 0.4],
-                    scale: [1, 1.05, 1],
-                }}
-                transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                }}
+                animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.05, 1] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                 className="absolute -inset-4 bg-gradient-to-tr from-[#C5A572] to-black/40 rounded-[2rem] blur-2xl pointer-events-none"
             />
 
             <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black">
                 <AnimatePresence mode="wait">
                     {!isPlaying ? (
-                        // Cover View
+                        /* ── COVER ── */
                         <motion.div
                             key="cover"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.3 }}
-                            onClick={handlePlay}
+                            onClick={handleCoverClick}
                             className="w-full h-full relative cursor-pointer group/cover"
                         >
                             <img
@@ -78,7 +151,21 @@ const InstagramVideo = () => {
                             />
                             <div className="absolute inset-0 bg-black/40 group-hover/cover:bg-black/30 transition-colors" />
 
-                            {/* Play Button */}
+                            {/* Botões do topo — sempre visíveis no cover */}
+                            <div className="absolute top-3 left-3 right-3 flex justify-between items-start z-10">
+                                <div className="p-2 bg-black/40 rounded-full text-white/40 backdrop-blur-sm">
+                                    <Volume2 size={18} />
+                                </div>
+                                <button
+                                    onClick={openInstagram}
+                                    className="p-2 bg-black/40 rounded-full text-white hover:bg-[#C5A572] hover:text-black backdrop-blur-sm transition-colors"
+                                    title="Ver no Instagram"
+                                >
+                                    <Instagram size={18} />
+                                </button>
+                            </div>
+
+                            {/* Botão Play central */}
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <motion.div
                                     whileHover={{ scale: 1.1 }}
@@ -89,8 +176,7 @@ const InstagramVideo = () => {
                                 </motion.div>
                             </div>
 
-                            {/* Social Overlay Elements (Decorative) */}
-                            <div className="absolute bottom-6 left-4 right-4 flex justify-between items-end">
+                            <div className="absolute bottom-6 left-4 right-4">
                                 <div className="flex flex-col gap-2 text-white">
                                     <div className="flex items-center gap-2">
                                         <div className="w-6 h-6 rounded-full bg-[#C5A572] flex items-center justify-center text-[10px] font-bold">LG</div>
@@ -101,72 +187,108 @@ const InstagramVideo = () => {
                             </div>
                         </motion.div>
                     ) : (
-                        // Video Player View
+                        /* ── PLAYER ── */
                         <motion.div
                             key="player"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.3 }}
-                            className="w-full h-full relative group/player"
+                            className="w-full h-full relative"
+                            onMouseMove={resetHideTimer}
+                            onTouchStart={resetHideTimer}
                         >
                             <video
                                 ref={videoRef}
-                                key={currentVideoIndex} // Force reload on change
+                                key={currentVideoIndex}
                                 src={VIDEOS[currentVideoIndex]}
                                 className="w-full h-full object-cover"
                                 autoPlay
                                 playsInline
                                 muted={isMuted}
-                                onEnded={() => setCurrentVideoIndex((prev) => (prev + 1) % VIDEOS.length)} // Auto next
+                                onEnded={handleVideoEnded}
                             />
 
-                            {/* Controls Overlay */}
-                            <div className="absolute inset-0 flex flex-col justify-between p-4 opacity-0 group-hover/player:opacity-100 transition-opacity duration-300 bg-black/20">
-                                {/* Top Controls */}
-                                <div className="flex justify-between items-start">
-                                    <button onClick={toggleMute} className="p-2 bg-black/40 rounded-full text-white hover:bg-black/60 backdrop-blur-sm transition">
-                                        {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-                                    </button>
-                                    <a href={INSTAGRAM_URL} target="_blank" className="p-2 bg-black/40 rounded-full text-white hover:bg-black/60 backdrop-blur-sm transition">
-                                        <Instagram size={18} />
-                                    </a>
-                                </div>
+                            {/* Overlay de controles — some após 2s */}
+                            <AnimatePresence>
+                                {showControls && (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/40"
+                                    >
+                                        {/* Topo: mute + instagram */}
+                                        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
+                                            <button
+                                                onClick={toggleMute}
+                                                className="p-2 bg-black/50 rounded-full text-white hover:bg-black/80 backdrop-blur-sm transition-colors"
+                                                title={isMuted ? "Ativar som" : "Silenciar"}
+                                            >
+                                                {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                                            </button>
+                                            <button
+                                                onClick={openInstagram}
+                                                className="p-2 bg-black/50 rounded-full text-white hover:bg-[#C5A572] hover:text-black backdrop-blur-sm transition-colors"
+                                                title="Ver no Instagram"
+                                            >
+                                                <Instagram size={18} />
+                                            </button>
+                                        </div>
 
-                                {/* Navigation Arrows */}
-                                <div className="absolute inset-y-0 left-0 flex items-center px-2">
-                                    <motion.button
-                                        whileHover={{ scale: 1.2 }}
-                                        whileTap={{ scale: 0.9 }}
-                                        onClick={prevVideo}
-                                        className="p-2 bg-black/30 rounded-full text-white hover:bg-[#C5A572] hover:text-black transition-colors backdrop-blur-sm"
-                                    >
-                                        <ChevronLeft size={24} />
-                                    </motion.button>
-                                </div>
-                                <div className="absolute inset-y-0 right-0 flex items-center px-2">
-                                    <motion.button
-                                        whileHover={{ scale: 1.2 }}
-                                        whileTap={{ scale: 0.9 }}
-                                        onClick={nextVideo}
-                                        className="p-2 bg-black/30 rounded-full text-white hover:bg-[#C5A572] hover:text-black transition-colors backdrop-blur-sm"
-                                    >
-                                        <ChevronRight size={24} />
-                                    </motion.button>
-                                </div>
-                            </div>
+                                        {/* Centro: pause/play */}
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <motion.button
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.9 }}
+                                                onClick={togglePlayPause}
+                                                className="p-3 bg-black/50 rounded-full text-white hover:bg-black/80 backdrop-blur-sm transition-colors"
+                                            >
+                                                {isPaused
+                                                    ? <Play size={22} className="fill-white ml-0.5" />
+                                                    : <Pause size={22} />}
+                                            </motion.button>
+                                        </div>
+
+                                        {/* Setas prev / next */}
+                                        <div className="absolute inset-y-0 left-2 flex items-center">
+                                            <motion.button
+                                                whileHover={{ scale: 1.2 }}
+                                                whileTap={{ scale: 0.9 }}
+                                                onClick={prevVideo}
+                                                className="p-2 bg-black/30 rounded-full text-white hover:bg-[#C5A572] hover:text-black transition-colors backdrop-blur-sm"
+                                            >
+                                                <ChevronLeft size={24} />
+                                            </motion.button>
+                                        </div>
+                                        <div className="absolute inset-y-0 right-2 flex items-center">
+                                            <motion.button
+                                                whileHover={{ scale: 1.2 }}
+                                                whileTap={{ scale: 0.9 }}
+                                                onClick={nextVideo}
+                                                className="p-2 bg-black/30 rounded-full text-white hover:bg-[#C5A572] hover:text-black transition-colors backdrop-blur-sm"
+                                            >
+                                                <ChevronRight size={24} />
+                                            </motion.button>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </motion.div>
                     )}
                 </AnimatePresence>
             </div>
 
-            {/* Playlist Indicator */}
+            {/* Indicador de playlist */}
             {isPlaying && (
                 <div className="absolute -bottom-8 left-0 right-0 flex justify-center gap-2">
                     {VIDEOS.map((_, idx) => (
                         <div
                             key={idx}
-                            className={`w-2 h-2 rounded-full transition-colors duration-300 ${idx === currentVideoIndex ? 'bg-[#C5A572]' : 'bg-white/20'}`}
+                            className={`w-2 h-2 rounded-full transition-colors duration-300 ${
+                                idx === currentVideoIndex ? "bg-[#C5A572]" : "bg-white/20"
+                            }`}
                         />
                     ))}
                 </div>
