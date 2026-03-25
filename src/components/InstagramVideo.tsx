@@ -27,12 +27,10 @@ const InstagramVideo = () => {
         return () => clearTimeout(autoplayTimer);
     }, []);
 
-    // ─── Sync muted no elemento de vídeo ────────────────────────────────────
-    useEffect(() => {
-        if (videoRef.current) {
-            videoRef.current.muted = isMuted;
-        }
-    }, [isMuted]);
+    // ─── Inicializa vídeo como muted (necessário para autoplay) ──────────────
+    // Nota: não usamos a prop muted={isMuted} do React pois há bug conhecido
+    // onde React seta o HTML attribute mas não a DOM property. Controlamos
+    // diretamente via ref para garantir funcionamento.
 
     // ─── Ao trocar de vídeo, dá play automaticamente ─────────────────────────
     useEffect(() => {
@@ -103,11 +101,11 @@ const InstagramVideo = () => {
 
     const toggleMute = (e: React.MouseEvent) => {
         e.stopPropagation();
-        e.preventDefault();
-        setIsMuted((prev) => {
-            if (videoRef.current) videoRef.current.muted = !prev;
-            return !prev;
-        });
+        if (!videoRef.current) return;
+        // Manipula diretamente a DOM property (não o HTML attribute)
+        const next = !isMuted;
+        videoRef.current.muted = next;
+        setIsMuted(next);
         resetHideTimer();
     };
 
@@ -205,8 +203,12 @@ const InstagramVideo = () => {
                                 className="w-full h-full object-cover"
                                 autoPlay
                                 playsInline
-                                muted={isMuted}
+                                muted
                                 onEnded={handleVideoEnded}
+                                onCanPlay={(e) => {
+                                    // Garante que a DOM property reflita o estado atual
+                                    (e.target as HTMLVideoElement).muted = isMuted;
+                                }}
                             />
 
                             {/* Overlay de controles — some após 2s */}
@@ -228,13 +230,16 @@ const InstagramVideo = () => {
                                             >
                                                 {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
                                             </button>
-                                            <button
-                                                onClick={openInstagram}
-                                                className="p-2 bg-black/50 rounded-full text-white hover:bg-[#C5A572] hover:text-black backdrop-blur-sm transition-colors"
+                                            <a
+                                                href={INSTAGRAM_URL}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="p-2 bg-black/50 rounded-full text-white hover:bg-[#C5A572] hover:text-black backdrop-blur-sm transition-colors flex items-center justify-center"
                                                 title="Ver no Instagram"
                                             >
                                                 <Instagram size={18} />
-                                            </button>
+                                            </a>
                                         </div>
 
                                         {/* Centro: pause/play */}
