@@ -56,7 +56,7 @@ const Footer = () => {
                       </div>
                       <div>
                         <p className="font-semibold text-foreground">Gustavo</p>
-                        <a href="tel:+5517991951957" className="text-sm hover:text-primary transition-colors">+55 17 99195-1957</a>
+                        <a href="tel:+5514999055467" className="text-sm hover:text-primary transition-colors">+55 14 99905-5467</a>
                       </div>
                     </div>
 
@@ -70,7 +70,7 @@ const Footer = () => {
                       </div>
                       <div>
                         <p className="font-semibold text-foreground">Guilherme</p>
-                        <a href="tel:+5514996099332" className="text-sm hover:text-primary transition-colors">+55 14 99609-9332</a>
+                        <a href="tel:+5514999055467" className="text-sm hover:text-primary transition-colors">+55 14 99905-5467</a>
                       </div>
                     </div>
                   </div>
@@ -173,7 +173,7 @@ const Footer = () => {
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
             </a>
             <a
-              href="https://api.whatsapp.com/send?phone=5517991951957"
+              href="https://api.whatsapp.com/send?phone=5514999055467"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-primary transition-colors relative group"

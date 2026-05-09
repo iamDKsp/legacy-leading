@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import heroBg from "@/assets/hero-bg.jpg";
 import InstagramVideo from "./InstagramVideo";
 
-const WHATSAPP_URL = "https://api.whatsapp.com/send?phone=5517991951957";
+const WHATSAPP_URL = "https://api.whatsapp.com/send?phone=5514999055467";
 
 const HeroSection = () => {
   return (

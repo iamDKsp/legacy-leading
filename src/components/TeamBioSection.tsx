@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Award, Heart, Target, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 
-const WHATSAPP_URL = "https://api.whatsapp.com/send?phone=5517991951957";
+const WHATSAPP_URL = "https://api.whatsapp.com/send?phone=5514999055467";
 
 const highlights = [
   { icon: Target,       text: "Mais de 5.000 clientes atendidos em todo o Brasil" },

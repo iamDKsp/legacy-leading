@@ -1,6 +1,6 @@
 import { MessageCircle } from "lucide-react";
 
-const WHATSAPP_URL = "https://api.whatsapp.com/send?phone=5517991951957";
+const WHATSAPP_URL = "https://api.whatsapp.com/send?phone=5514999055467";
 
 const WhatsAppFloat = () => {
   return (
